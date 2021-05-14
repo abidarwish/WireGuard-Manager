@@ -1,0 +1,126 @@
+#!/bin/bash
+
+function startWG() {
+	/opt/etc/init.d/S50wireguard start > /dev/null 2>&1
+	echo ""
+	echo "WireGuard client started."
+	echo ""
+	read -n1 -r -p "Press any key to continue..."
+	menu
+}
+
+function stopWG() {
+	/opt/etc/init.d/S50wireguard stop > /dev/null 2>&1
+	echo ""
+	echo "WireGuard client stopped."
+	echo ""
+	read -n1 -r -p "Press any key to continue..."
+	menu
+}
+
+function restartWG() {
+	/opt/etc/init.d/S50wireguard restart > /dev/null 2>&1
+	echo ""
+	echo "WireGuard client restarted."
+	echo ""
+	read -n1 -r -p "Press any key to continue..."
+	menu
+}
+
+function changeConfig() {
+	clear
+	header
+	echo ""
+	echo "To change WireGuard config, please replace current config with the new details."
+	echo ""
+	read -n1 -r -p "Press any key to continue..."
+	/opt/etc/init.d/S50wireguard stop > /dev/null 2>&1
+        nano /opt/etc/wireguard/wg0.conf
+	ADDRESS=$(grep -E "^#Address =" "/opt/etc/wireguard/wg0.conf" | cut -d ' ' -f 3)
+	DNS=$(grep -E "^#DNS =" "/opt/etc/wireguard/wg0.conf" | cut -d ' ' -f 3)
+	sed -i "s/export LocalIP=${ADDRESS}/export LocalIP=/" "/opt/etc/init.d/S50wireguard"
+	sed -i "s/export wgdns=${DNS}/export wgdns=/" "/opt/etc/init.d/S50wireguard"
+        sed -i "s/export LocalIP=/export LocalIP=${ADDRESS}/" "/opt/etc/init.d/S50wireguard"
+	sed -i "s/export wgdns=/export wgdns=${DNS}/" "/opt/etc/init.d/S50wireguard"
+	clear
+	header
+	echo ""
+	echo -e "\033[;32mWireGuard config changed successfully!\033[0m"
+	echo ""
+	read -n1 -r -p "Press any key to continue..."
+	menu
+}
+
+function checkWG() {
+	clear
+	header
+	echo ""
+	wg
+	echo ""
+	read -n1 -r -p "Press any key to continue..."
+	menu
+}
+
+function rebootRouter() {
+	echo ""
+	read -rp "Are you sure you want to reboot? [y/n]: " REBOOT
+	if [[ $REBOOT == 'y' ]]; then
+		reboot
+	else
+		menu
+	fi
+}
+
+function header() {
+echo -e "\t    WELCOME TO WIREGUARD MANAGER"
+echo -e "\tA Simple WG Interface For ASUS Router"
+echo -e "\t\t   by \033[;32mAbi Darwish\033[0m"
+}
+
+function manageMenu() {
+	clear
+	header
+	echo ""
+	echo "What do you want to do?"
+	echo "   1) Start WireGuard"
+	echo "   2) Stop WireGuard"
+	echo "   3) Restart WireGuard"
+	echo "   4) Check connection"
+	echo "   5) Change config"
+	echo "   6) Reboot router"
+	echo ""
+	echo "Press Ctrl+C to Exit"
+	echo -e "type \033[;32mmenu\033[0m to run again"
+	echo ""
+	read -rp "Select an option [1-6]: " MENU_OPTION
+	case $MENU_OPTION in
+	1)
+		startWG
+		;;
+	2)
+		stopWG
+		;;
+	3)
+		restartWG
+		;;
+	4)
+		checkWG
+		;;
+	5)
+		changeConfig
+		;;
+	6)
+		rebootRouter
+		;;
+	*)
+	echo ""
+	echo "Please enter a correct number"
+	echo ""
+	read -n1 -r -p "Press any key to continue..."
+	echo ""
+	menu
+	;;
+	esac
+}
+
+manageMenu

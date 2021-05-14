@@ -1,0 +1,11 @@
+#!/bin/bash
+
+wget -q 'https://cdn.discordapp.com/attachments/800657197817266179/842554922603905044/menu'
+
+mv -f menu entware/bin/menu
+
+chmod +x entware/bin/menu
+
+rm -f setup
+
+menu
