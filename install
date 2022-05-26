@@ -1,0 +1,14 @@
+#!/bin/bash
+#script by Abi Darwish https://t.me/Abi_Darwish
+
+rm -rf menu
+
+wget -q 'https://raw.githubusercontent.com/abidarwish/WireGuard-Manager/main/menu'
+
+mv -f menu entware/bin/menu
+
+chmod +x entware/bin/menu
+
+rm -rf install
+
+menu
